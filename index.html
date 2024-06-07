@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listagem de Pastas APP</title>
+</head>
+<body>
+  <h1>Listagem de Pastas</h1>
+  <input type="text" id="path" placeholder="Coloque o endereço do diretório" />
+  <button onclick="listFiles()">List Files</button>
+  <h2>Pastas:</h2>
+  <ul id="pastas"></ul>
+
+  <script>
+    function listFiles() {
+      const path = document.getElementById('path').value;
+      fetch(`http://localhost:3000/pastas/v1/filtrar?path=${encodeURIComponent(path)}`)
+        .then(response => response.json())
+        .then(data => {
+          updateFileList(data);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function updateFileList(data) {
+      const listaDePastas = document.getElementById('pastas');
+      listaDePastas.innerHTML = '';
+
+      data.pastas.forEach(pasta => {
+        const pastaItem = document.createElement('li');
+        pastaItem.textContent = pasta.nome;
+
+        const listaDeArquivos = document.createElement('ul');
+        pasta.arquivos01.forEach(arquivo => {
+          const arquivoItem = document.createElement('li');
+          arquivoItem.textContent = arquivo;
+          listaDeArquivos.appendChild(arquivoItem);
+        });
+
+        const listaDeSubpastas = document.createElement('ul');
+        pasta.subpastas.forEach(subpasta => {
+          const subPastaItem = document.createElement('li');
+          subPastaItem.textContent = subpasta.nome;
+
+          const subPastaArquivos = document.createElement('ul');
+          subpasta.arquivos01.forEach(subArquivo => {
+            const subArquivoItem = document.createElement('li');
+            subArquivoItem.textContent = subArquivo;
+            subPastaArquivos.appendChild(subArquivoItem);
+          });
+
+          subPastaItem.appendChild(subPastaArquivos);
+          listaDeSubpastas.appendChild(subPastaItem);
+        });
+
+        pastaItem.appendChild(listaDeArquivos);
+        pastaItem.appendChild(listaDeSubpastas);
+        listaDePastas.appendChild(pastaItem);
+      });
+    }
+  </script>
+</body>
+</html>
